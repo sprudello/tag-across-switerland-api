@@ -1,11 +1,14 @@
-﻿namespace TagAPI.Models
+﻿using System.Text.RegularExpressions;
+
+namespace TagAPI.Models
 {
     public class UserTransaction
     {
         public int TransactionID { get; set; }
-        public int GroupID { get; set; }
-        public int Amount { get; set; }
-        public string TransactionType { get; set; } = string.Empty;
-        public DateTime TransactionDate { get; set; }
+        public required int UserID { get; set; }
+        public required int Amount { get; set; }
+        public required string TransactionType { get; set; } = string.Empty;
+        public required DateTime TransactionDate { get; set; }
+        public User User { get; set; }
     }
 }
