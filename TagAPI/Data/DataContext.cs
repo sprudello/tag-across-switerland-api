@@ -26,7 +26,7 @@ namespace TagAPI.Data
             //USERCHALLENGE S
             // Define relationships and any configuration for the GroupChallenge entity
             modelBuilder.Entity<UserChallenge>()
-                .HasKey(g => g.UserChallengeID); // Primary Key
+                .HasKey(g => g.Id); // Primary Key
 
             modelBuilder.Entity<UserChallenge>()
                 .HasOne<User>(g => g.User) // Define the relationship to Group
@@ -42,7 +42,7 @@ namespace TagAPI.Data
             //USERTRANSACTION S
             // Define the primary key for the GroupTransaction
             modelBuilder.Entity<UserTransaction>()
-                .HasKey(gt => gt.TransactionID);
+                .HasKey(gt => gt.Id);
 
             // Define the foreign key relationship between GroupTransactions and Groups
             modelBuilder.Entity<UserTransaction>()
@@ -53,7 +53,7 @@ namespace TagAPI.Data
 
             //USERITEM S
             modelBuilder.Entity<UserItem>()
-           .HasKey(gi => gi.UserItemID);
+           .HasKey(gi => gi.Id);
 
             // Define foreign key relationship between GroupItems and Groups
             modelBuilder.Entity<UserItem>()
@@ -70,7 +70,7 @@ namespace TagAPI.Data
 
             //USERTRANSPORTATION S
             modelBuilder.Entity<UserTransportation>()
-           .HasKey(gt => gt.UserTransportID);
+           .HasKey(gt => gt.Id);
 
             // Define foreign key relationship between GroupTransportation and Groups
             modelBuilder.Entity<UserTransportation>()

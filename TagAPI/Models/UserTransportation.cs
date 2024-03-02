@@ -4,7 +4,7 @@ namespace TagAPI.Models
 {
     public class UserTransportation
     {
-        public int UserTransportID { get; set; }
+        public int Id { get; set; }
         public required int UserID { get; set; }
         public required int TypeID { get; set; }
         public required DateTime StartTime { get; set; }

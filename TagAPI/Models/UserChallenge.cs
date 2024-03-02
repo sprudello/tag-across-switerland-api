@@ -4,7 +4,7 @@ namespace TagAPI.Models
 {
     public class UserChallenge
     {
-        public int UserChallengeID { get; set; }
+        public int Id { get; set; }
         public required int UserID { get; set; }
         public required int CardID { get; set; }
         public required DateTime StartTime { get; set; }

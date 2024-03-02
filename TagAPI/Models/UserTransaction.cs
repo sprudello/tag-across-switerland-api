@@ -4,7 +4,7 @@ namespace TagAPI.Models
 {
     public class UserTransaction
     {
-        public int TransactionID { get; set; }
+        public int Id { get; set; }
         public required int UserID { get; set; }
         public required int Amount { get; set; }
         public required string TransactionType { get; set; } = string.Empty;
