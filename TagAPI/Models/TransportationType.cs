@@ -1,6 +1,6 @@
 ﻿namespace TagAPI.Models
 {
-    public class TransportationTypes
+    public class TransportationType
     {
         public int TypeID { get; set; }
         public required string TypeName { get; set; } = string.Empty;
