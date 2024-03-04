@@ -10,12 +10,12 @@ namespace TagAPI.Data
         {
 
         }
-        public DbSet<User> Groups { get; set; }
-        public DbSet<UserChallenge> GroupChallenges { get; set; }
-        public DbSet<UserItem> GroupItems { get; set; }
-        public DbSet<UserTransaction> GroupTransactions { get; set; }
+        public DbSet<User> Users { get; set; }
+        public DbSet<UserChallenge> UserChallenges { get; set; }
+        public DbSet<UserItem> UserItems { get; set; }
+        public DbSet<UserTransaction> UserTransactions { get; set; }
         public DbSet<ChallengeCard> ChallengeCards { get; set; }
-        public DbSet<UserTransportation> GroupTransportations { get; set; }
+        public DbSet<UserTransportation> UserTransportations { get; set; }
         public DbSet<Item> Items { get; set; }
         public DbSet<TransportationType> Transportations { get; set; }
 

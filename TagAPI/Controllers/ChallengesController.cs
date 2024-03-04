@@ -36,5 +36,29 @@ namespace TagAPI.Controllers
 
             return Ok(challenges);
         }
+        [HttpGet("GetRandom/")]
+        public async Task<ActionResult<ChallengeCardDTO>> GetRandomChallenge()
+        {
+            Random random = new Random();
+            int count = _context.ChallengeCards.Count();
+            if (count == 0)
+            {
+                return NotFound("No challenges available.");
+            }
+            int index = random.Next(0, count);
+            ChallengeCard challenge = await _context.ChallengeCards.Skip(index).FirstOrDefaultAsync();
+            if (challenge == null)
+            {
+                return NotFound("Challenge not found.");
+            }
+            var challengeDTO = new ChallengeCardDTO
+            {
+                Description = challenge.Description,
+                Reward = challenge.Reward,
+                Title = challenge.Title,
+            };
+            return Ok(challengeDTO);
+        }
+
     }
 }
