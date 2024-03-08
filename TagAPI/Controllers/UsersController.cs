@@ -1,5 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using TagAPI.Data;
 using TagAPI.Models;
 using TagAPI.ModelsDTO;
@@ -11,15 +16,17 @@ namespace TagAPI.Controllers
     public class UsersController : ControllerBase
     {
         private readonly DataContext _context;
+        private readonly IConfiguration _configuration;
 
-        public UsersController(DataContext context)
+        public UsersController(DataContext context, IConfiguration configuration)
         {
             _context = context;
+            _configuration = configuration;
         }
         [HttpPost("register/")]
         public IActionResult Register([FromBody] UserDTO rquest)
         {
-            if (_context.Users.Any(u => u.UserName == rquest.UserName))
+            if (_context.Users.Any(u => u.Username == rquest.UserName))
             {
                 return BadRequest("Username already exists.");
             }
@@ -27,7 +34,7 @@ namespace TagAPI.Controllers
 
             var newUser = new User
             {
-                UserName = rquest.UserName,
+                Username = rquest.UserName,
                 PasswordHash = hashedPassword,
                 GottstattCoins = 1000,
             };
@@ -41,7 +48,7 @@ namespace TagAPI.Controllers
         public IActionResult Login([FromBody] UserDTO request)
         {
             // Find the user by email
-            var user = _context.Users.FirstOrDefault(u => u.UserName == request.UserName);
+            var user = _context.Users.FirstOrDefault(u => u.Username == request.UserName);
 
             // Check if user exists and the password is correct
             if (user != null && BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
@@ -49,11 +56,33 @@ namespace TagAPI.Controllers
                 // Authentication successful
                 // For simplicity, we're just returning a success response.
                 // In a real application, you would issue a token or set a cookie here.
-                return Ok("User logged in successfully.");
+                string token = CreateToken(user);
+                return Ok($"User logged in successfully. {token}");
             }
 
             // Authentication failed
             return Unauthorized("Invalid credentials.");
+        }
+
+        private string CreateToken(User user)
+        {
+            List<Claim> claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, user.Username)
+            };
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.GetSection("AppSettings:Token").Value!));
+
+            var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature);
+
+            var token = new JwtSecurityToken(
+                    claims: claims,
+                    expires: DateTime.Now.AddDays(1),
+                    signingCredentials: credentials
+                );
+            var jwt = new JwtSecurityTokenHandler().WriteToken(token);
+
+            return jwt;
         }
     }
 }
