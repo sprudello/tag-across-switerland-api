@@ -24,17 +24,17 @@ namespace TagAPI.Controllers
             _configuration = configuration;
         }
         [HttpPost("register/")]
-        public IActionResult Register([FromBody] UserDTO rquest)
+        public IActionResult Register([FromBody] UserDTO request)
         {
-            if (_context.Users.Any(u => u.Username == rquest.UserName))
+            if (_context.Users.Any(u => u.Username == request.UserName))
             {
                 return BadRequest("Username already exists.");
             }
-            var hashedPassword = BCrypt.Net.BCrypt.HashPassword(rquest.Password);
+            var hashedPassword = BCrypt.Net.BCrypt.HashPassword(request.Password);
 
             var newUser = new User
             {
-                Username = rquest.UserName,
+                Username = request.UserName,
                 PasswordHash = hashedPassword,
                 GottstattCoins = 1000,
             };

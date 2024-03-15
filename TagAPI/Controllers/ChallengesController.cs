@@ -61,6 +61,13 @@ namespace TagAPI.Controllers
             };
             return Ok(challengeDTO);
         }
+        [HttpPost("AssignChallenge/")]
+        public async Task<IActionResult> AssignChallenge()
+        {
+            var groupIdClaim = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "Id");
 
+            Console.WriteLine(groupIdClaim);
+            return Ok();
+        }
     }
 }
