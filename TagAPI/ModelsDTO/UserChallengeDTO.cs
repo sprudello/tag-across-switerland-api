@@ -1,19 +1,12 @@
-﻿using System.Text.RegularExpressions;
-
-namespace TagAPI.Models
+﻿namespace TagAPI.ModelsDTO
 {
-    public class UserChallenge
+    public class UserChallengeDTO
     {
-        public int Id { get; set; }
         public required int UserID { get; set; }
         public required int CardID { get; set; }
         public required DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
         public DateTime PenaltyEndTime { get; set; }
         public string Status { get; set; } = string.Empty;
-
-        //Nav Properties
-        public User User { get; set; }
-        public ChallengeCard ChallengeCard { get; set; }
     }
 }
