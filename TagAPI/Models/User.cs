@@ -8,5 +8,6 @@ namespace TagAPI.Models
         public required string Username { get; set; } = string.Empty;
         public required string PasswordHash { get; set; } = string.Empty;
         public required int GottstattCoins { get; set; }
+        public DateTime PenaltyEndTime { get; set; }
     }
 }

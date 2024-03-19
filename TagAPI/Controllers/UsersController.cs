@@ -57,11 +57,11 @@ namespace TagAPI.Controllers
                 // For simplicity, we're just returning a success response.
                 // In a real application, you would issue a token or set a cookie here.
                 string token = CreateToken(user);
-                return Ok($"User logged in successfully. {token}");
+                return Ok(new { message = "User logged in successfully.", token = token });
             }
 
             // Authentication failed
-            return Unauthorized("Invalid credentials.");
+            return Unauthorized(new {message = "Wrong Pass or Username"});
         }
 
         private string CreateToken(User user)

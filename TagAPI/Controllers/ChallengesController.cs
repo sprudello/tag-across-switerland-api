@@ -72,6 +72,11 @@ namespace TagAPI.Controllers
             {
                 return BadRequest("User not found.");
             }
+            User user = _context.Users.FirstOrDefault(c => c.Id == userId);
+            if (user.PenaltyEndTime > DateTime.UtcNow)
+            {
+                return Ok("You still have a penalty.");
+            }
             Random random = new Random();
             int count = _context.ChallengeCards.Count();
             if (count == 0)
@@ -101,7 +106,7 @@ namespace TagAPI.Controllers
                     isValid = false;
                 }
             } while (isValid);
-            ChallengeCard challenge = await _context.ChallengeCards.Skip(index).FirstOrDefaultAsync();
+            ChallengeCard challenge = _context.ChallengeCards.Skip(index).FirstOrDefault();
             
             if (challenge == null)
             {
@@ -148,11 +153,12 @@ namespace TagAPI.Controllers
                 .FirstOrDefault(c => c.Id == userId);
             var challenge = _context.ChallengeCards.FirstOrDefault(c => c.Id == userChallenge.CardID);
             userChallenge.Status = "success";
+            userChallenge.EndTime = DateTime.UtcNow;
             user.GottstattCoins += challenge.Reward;
             _context.SaveChanges();
-            return Ok();
+            return Ok("Callenge Successfully");
         }
-        [HttpGet("CurrentChallenge")]
+        [HttpGet("CurrentChallenge/")]
         public async Task<IActionResult> GetCurrentChallenge()
         {
             string username = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
@@ -187,6 +193,36 @@ namespace TagAPI.Controllers
 
             return Ok(challengeCard);
         }
-        []
+        [HttpPatch("VetoChallenge/")]
+        public async Task<IActionResult> VetoChallenge()
+        {
+            string username = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
+
+            if (string.IsNullOrEmpty(username))
+            {
+                return Unauthorized("User is not authenticated.");
+            }
+
+            // Use asynchronous database access
+            var user = await _context.Users.FirstOrDefaultAsync(c => c.Username == username);
+
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
+
+            // Retrieve the current challenge for the user asynchronously and safely
+            var userChallenge = await _context.UserChallenges.FirstOrDefaultAsync(uc => uc.UserID == user.Id && uc.Status == "started");
+
+            if (userChallenge == null)
+            {
+                return NotFound("No active challenge found for the user.");
+            }
+            userChallenge.Status = "failed";
+            userChallenge.EndTime = DateTime.UtcNow;
+            user.PenaltyEndTime = DateTime.UtcNow.AddMinutes(30);
+            _context.SaveChanges();
+            return Ok("Challenge failed successfully");
+        }
     }
 }
