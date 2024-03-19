@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 using System.Security.Claims;
 using TagAPI.Data;
 using TagAPI.Models;
@@ -66,14 +67,10 @@ namespace TagAPI.Controllers
         public async Task<IActionResult> AssignChallenge()
         {
             var username = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
-            int userId = 0;
-            foreach(User user in _context.Users)
+            int userId = _context.Users.FirstOrDefault(c => c.Username == username).Id;
+            if (userId == 0 || userId == null)
             {
-                if (user.Username == username)
-                {
-                    userId = user.Id;
-                    break;
-                }
+                return BadRequest("User not found.");
             }
             Random random = new Random();
             int count = _context.ChallengeCards.Count();
@@ -81,8 +78,31 @@ namespace TagAPI.Controllers
             {
                 return NotFound("No challenges available.");
             }
-            int index = random.Next(0, count);
+            List<int> everyUserChallengeId = _context.UserChallenges
+                .Where(c => c.UserID == userId)
+                .Select(uc => uc.CardID)
+                .ToList();
+            var startedChallenges = _context.UserChallenges.FirstOrDefault(c => c.UserID == userId && c.Status == "started");
+            if (startedChallenges != null)
+            {
+                return BadRequest("You have already started a challenge.");
+            }
+            if (everyUserChallengeId.Count == count)
+            {
+                return Ok("You already have done all available challenges");
+            }
+            bool isValid = true;
+            int index;
+            do
+            {
+                index = random.Next(0, count);
+                if (!everyUserChallengeId.Contains(index))
+                {
+                    isValid = false;
+                }
+            } while (isValid);
             ChallengeCard challenge = await _context.ChallengeCards.Skip(index).FirstOrDefaultAsync();
+            
             if (challenge == null)
             {
                 return NotFound("Challenge not found.");
@@ -118,7 +138,55 @@ namespace TagAPI.Controllers
                     break;
                 }
             }
-            
+            var userChallenge = _context.UserChallenges
+                .FirstOrDefault(c => c.UserID == userId && c.Status == "started");
+            if (userChallenge == null)
+            {
+                return BadRequest("You haven't started a challenge... Yet");
+            }
+            var user = _context.Users
+                .FirstOrDefault(c => c.Id == userId);
+            var challenge = _context.ChallengeCards.FirstOrDefault(c => c.Id == userChallenge.CardID);
+            userChallenge.Status = "success";
+            user.GottstattCoins += challenge.Reward;
+            _context.SaveChanges();
+            return Ok();
         }
+        [HttpGet("CurrentChallenge")]
+        public async Task<IActionResult> GetCurrentChallenge()
+        {
+            string username = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
+
+            if (string.IsNullOrEmpty(username))
+            {
+                return Unauthorized("User is not authenticated.");
+            }
+
+            // Use asynchronous database access
+            var user = await _context.Users.FirstOrDefaultAsync(c => c.Username == username);
+
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
+
+            // Retrieve the current challenge for the user asynchronously and safely
+            var userChallenge = await _context.UserChallenges.FirstOrDefaultAsync(uc => uc.UserID == user.Id && uc.Status == "started");
+
+            if (userChallenge == null)
+            {
+                return NotFound("No active challenge found for the user.");
+            }
+
+            var challengeCard = await _context.ChallengeCards.FirstOrDefaultAsync(c => c.Id == userChallenge.CardID);
+
+            if (challengeCard == null)
+            {
+                return NotFound("Challenge not found.");
+            }
+
+            return Ok(challengeCard);
+        }
+        []
     }
 }
