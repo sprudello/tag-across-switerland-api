@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using TagAPI.Data;
 using TagAPI.Models;
 using TagAPI.ModelsDTO;
@@ -20,7 +21,7 @@ namespace TagAPI.Controllers
             _context = context;
         }
 
-        [HttpGet("GetAllTransportations")]
+        [HttpGet("GetAllTransportations/")]
         public async Task<IActionResult> GetAllTransportationsMethods()
         {
             var transportations = await _context.Transportations.ToListAsync();
@@ -30,7 +31,7 @@ namespace TagAPI.Controllers
             }
             return Ok(transportations);
         }
-        [HttpPost("CreateTransportation")]
+        [HttpPost("CreateTransportation/")]
         public async Task<IActionResult> PostNewTransportation([FromBody] TransportationDTO request)
         {
             var newTransportation = new TransportationType
@@ -43,6 +44,22 @@ namespace TagAPI.Controllers
             _context.SaveChanges();
 
             return Ok("Creation was successful");
+        }
+        [HttpPost("BuyTransportation/")]
+        public async Task<IActionResult> BuyTransportation([FromBody] BuyTransportationDTO request)
+        {
+            string username = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
+            if (string.IsNullOrEmpty(username))
+            {
+                return Unauthorized("User is not authenticated.");
+            }
+            var user = await _context.Users.FirstOrDefaultAsync(c => c.Username == username);
+            var transportation = _context.Transportations.FirstOrDefault(c => c.TypeName == request.TransportationTitle);
+            if (transportation == null)
+            {
+                return NotFound(new { message = "Transportation Method not found" });
+            }
+
         }
     }
 }
