@@ -45,7 +45,7 @@ namespace TagAPI.Controllers
 
             return Ok("User registered successfully.");
         }
-        [HttpPost("login")]
+        [HttpPost("login/")]
         public IActionResult Login([FromBody] UserDTO request)
         {
             // Find the user by email
@@ -64,7 +64,18 @@ namespace TagAPI.Controllers
             // Authentication failed
             return Unauthorized(new {message = "Wrong Pass or Username"});
         }
+        [HttpGet("Balance/")]
+        public async Task<IActionResult> GetBalance()
+        {
+            var username = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
+            var user = _context.Users.FirstOrDefault(c => c.Username == username);
+            if(username ==  null)
+            {
+                return BadRequest(new { message = "User not logged in." });
+            }
 
+            return Ok(new { message = $"{user.GottstattCoins} GC" });
+        }
         private string CreateToken(User user)
         {
             List<Claim> claims = new List<Claim>
