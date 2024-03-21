@@ -157,6 +157,7 @@ namespace TagAPI.Controllers
             if(user.HasMultiplier)
             {
                 user.GottstattCoins += (challenge.Reward * 2);
+                user.HasMultiplier = false;
             }
             else
             {
