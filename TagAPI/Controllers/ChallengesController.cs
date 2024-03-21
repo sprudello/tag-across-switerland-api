@@ -154,7 +154,16 @@ namespace TagAPI.Controllers
             var challenge = _context.ChallengeCards.FirstOrDefault(c => c.Id == userChallenge.CardID);
             userChallenge.Status = "success";
             userChallenge.EndTime = DateTime.UtcNow;
-            user.GottstattCoins += challenge.Reward;
+            if(user.HasMultiplier)
+            {
+                user.GottstattCoins += (challenge.Reward * 2);
+                user.HasMultiplier = false;
+            }
+            else
+            {
+                user.GottstattCoins += challenge.Reward;
+            }
+            
             _context.SaveChanges();
             return Ok("Callenge Successfully");
         }
