@@ -54,12 +54,33 @@ namespace TagAPI.Controllers
                 return Unauthorized("User is not authenticated.");
             }
             var user = await _context.Users.FirstOrDefaultAsync(c => c.Username == username);
+            if (user.PenaltyEndTime > DateTime.UtcNow)
+            {
+                return BadRequest(new { message = $"You still have a penalty until {user.PenaltyEndTime.AddHours(1).TimeOfDay}" });
+            }
             var transportation = _context.Transportations.FirstOrDefault(c => c.TypeName == request.TransportationTitle);
             if (transportation == null)
             {
                 return NotFound(new { message = "Transportation Method not found" });
             }
-
+            int fee = transportation.FeePerMinute * request.TimeInMinutes;
+            if (fee > user.GottstattCoins)
+            {
+                return Ok(new { message = "Insufficient Funds" });
+            }
+            user.GottstattCoins -= fee;
+            UserTransportation newTransport = new UserTransportation
+            {
+                UserID = user.Id,
+                TypeID = transportation.Id,
+                StartTime = DateTime.UtcNow,
+                EndTime = DateTime.UtcNow.AddMinutes(request.TimeInMinutes),
+                Duration = request.TimeInMinutes,
+                TotalCost = fee,
+            };
+            _context.UserTransportations.Add(newTransport);
+            _context.SaveChanges();
+            return Ok(new {message = $"Ride booked successfully fee: {fee} GottstattCoins" });
         }
     }
 }

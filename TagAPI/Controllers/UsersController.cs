@@ -36,6 +36,7 @@ namespace TagAPI.Controllers
             {
                 Username = request.UserName,
                 PasswordHash = hashedPassword,
+                HasMultiplier = false,
                 GottstattCoins = 1000,
             };
 
