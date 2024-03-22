@@ -74,7 +74,7 @@ namespace TagAPI.Controllers
                 return BadRequest(new { message = "User not logged in." });
             }
 
-            return Ok(new { message = $"{user.GottstattCoins} GC" });
+            return Ok(new { balance = $"{user.GottstattCoins} GC" });
         }
         private string CreateToken(User user)
         {
