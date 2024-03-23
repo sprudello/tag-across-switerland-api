@@ -190,7 +190,7 @@ namespace TagAPI.Controllers
 
             if (userChallenge == null)
             {
-                return NotFound("No active challenge found for the user.");
+                return NotFound(new { message = "No active challenge found for the user." });
             }
 
             var challengeCard = await _context.ChallengeCards.FirstOrDefaultAsync(c => c.Id == userChallenge.CardID);
@@ -230,6 +230,7 @@ namespace TagAPI.Controllers
             userChallenge.Status = "failed";
             userChallenge.EndTime = DateTime.UtcNow;
             user.PenaltyEndTime = DateTime.UtcNow.AddMinutes(30);
+            user.HasMultiplier = false;
             _context.SaveChanges();
             return Ok("Challenge failed successfully");
         }

@@ -59,6 +59,10 @@ namespace TagAPI.Controllers
             }
             if (item.ItemName == "Double")
             {
+                if (_context.UserChallenges.Where(c => c.UserID == user.Id && c.Status == "started").Any())
+                {
+                    return BadRequest(new { message = "You can't buy this item while having an active quest." });
+                }
                 user.HasMultiplier = true;
             }
             user.GottstattCoins -= item.ItemPrice;
