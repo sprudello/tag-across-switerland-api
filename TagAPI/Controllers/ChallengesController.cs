@@ -75,7 +75,7 @@ namespace TagAPI.Controllers
             User user = _context.Users.FirstOrDefault(c => c.Id == userId);
             if (user.PenaltyEndTime > DateTime.UtcNow)
             {
-                return Ok("You still have a penalty.");
+                return Ok(new { message = "You still have a penalty." });
             }
             Random random = new Random();
             int count = _context.ChallengeCards.Count();
@@ -202,7 +202,7 @@ namespace TagAPI.Controllers
 
             return Ok(challengeCard);
         }
-        [HttpPatch("VetoChallenge/")]
+        [HttpPut("VetoChallenge/")]
         public async Task<IActionResult> VetoChallenge()
         {
             string username = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
