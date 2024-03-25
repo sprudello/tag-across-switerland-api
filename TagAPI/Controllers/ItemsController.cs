@@ -49,7 +49,7 @@ namespace TagAPI.Controllers
             string username = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
             if (string.IsNullOrEmpty(username))
             {
-                return Unauthorized("User is not authenticated.");
+                return Unauthorized(new { message = "User is not authenticated." });
             }
             var user = await _context.Users.FirstOrDefaultAsync(c => c.Username == username);
             var item = await _context.Items.FirstOrDefaultAsync(c => c.ItemName == request.ItemName);

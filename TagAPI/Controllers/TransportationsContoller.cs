@@ -25,9 +25,9 @@ namespace TagAPI.Controllers
         public async Task<IActionResult> GetAllTransportationsMethods()
         {
             var transportations = await _context.Transportations.ToListAsync();
-            if(transportations.Count == 0)
+            if (transportations.Count == 0)
             {
-                return NotFound("No TransportationTypes found");
+                return NotFound(new { message = "No TransportationTypes found" });
             }
             return Ok(transportations);
         }
@@ -40,10 +40,10 @@ namespace TagAPI.Controllers
                 FeePerMinute = request.FeePerMinute,
             };
 
-            _context.Transportations.AddAsync(newTransportation);
-            _context.SaveChanges();
+            await _context.Transportations.AddAsync(newTransportation);
+            await _context.SaveChangesAsync();
 
-            return Ok("Creation was successful");
+            return Ok(new { message = "Creation was successful" });
         }
         [HttpPost("BuyTransportation/")]
         public async Task<IActionResult> BuyTransportation([FromBody] BuyTransportationDTO request)
@@ -51,7 +51,7 @@ namespace TagAPI.Controllers
             string username = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
             if (string.IsNullOrEmpty(username))
             {
-                return Unauthorized("User is not authenticated.");
+                return Unauthorized(new { message = "User is not authenticated." });
             }
             var user = await _context.Users.FirstOrDefaultAsync(c => c.Username == username);
             if (user.PenaltyEndTime > DateTime.UtcNow)
@@ -79,8 +79,8 @@ namespace TagAPI.Controllers
                 TotalCost = fee,
             };
             _context.UserTransportations.Add(newTransport);
-            _context.SaveChanges();
-            return Ok(new {message = $"Ride booked successfully fee: {fee} GottstattCoins" });
+            await _context.SaveChangesAsync();
+            return Ok(new { message = $"Ride booked successfully, fee: {fee} GottstattCoins" });
         }
     }
 }

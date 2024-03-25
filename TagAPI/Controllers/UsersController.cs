@@ -28,7 +28,7 @@ namespace TagAPI.Controllers
         {
             if (_context.Users.Any(u => u.Username == request.UserName))
             {
-                return BadRequest("Username already exists.");
+                return BadRequest(new { message = "Username already exists." });
             }
             var hashedPassword = BCrypt.Net.BCrypt.HashPassword(request.Password);
 
@@ -43,7 +43,7 @@ namespace TagAPI.Controllers
             _context.Users.Add(newUser);
             _context.SaveChanges();
 
-            return Ok("User registered successfully.");
+            return Ok(new { message = "User registered successfully." });
         }
         [HttpPost("login/")]
         public IActionResult Login([FromBody] UserDTO request)
@@ -62,19 +62,30 @@ namespace TagAPI.Controllers
             }
 
             // Authentication failed
-            return Unauthorized(new {message = "Wrong Pass or Username"});
+            return Unauthorized(new { message = "Wrong Pass or Username" });
         }
         [HttpGet("Balance/")]
         public async Task<IActionResult> GetBalance()
         {
             var username = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
             var user = _context.Users.FirstOrDefault(c => c.Username == username);
-            if(username ==  null)
+            if (username == null)
             {
                 return BadRequest(new { message = "User not logged in." });
             }
 
             return Ok(new { balance = $"{user.GottstattCoins} GC" });
+        }
+        [HttpGet("Profile/")]
+        public async Task<IActionResult> GetProfile()
+        {
+            var username = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
+            var user = _context.Users.FirstOrDefault(c => c.Username == username);
+            if (username == null)
+            {
+                return BadRequest(new { message = "User not logged in." });
+            }
+            return Ok(user);
         }
         private string CreateToken(User user)
         {

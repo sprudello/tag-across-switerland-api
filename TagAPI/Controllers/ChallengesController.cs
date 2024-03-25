@@ -47,13 +47,13 @@ namespace TagAPI.Controllers
             int count = _context.ChallengeCards.Count();
             if (count == 0)
             {
-                return NotFound("No challenges available.");
+                return NotFound(new { message = "No challenges available." });
             }
             int index = random.Next(0, count);
             ChallengeCard challenge = await _context.ChallengeCards.Skip(index).FirstOrDefaultAsync();
             if (challenge == null)
             {
-                return NotFound("Challenge not found.");
+                return NotFound(new { message = "Challenge not found." });
             }
             var challengeDTO = new ChallengeCardDTO
             {
@@ -70,7 +70,7 @@ namespace TagAPI.Controllers
             int userId = _context.Users.FirstOrDefault(c => c.Username == username).Id;
             if (userId == 0 || userId == null)
             {
-                return BadRequest("User not found.");
+                return BadRequest(new { message = "User not found." });
             }
             User user = _context.Users.FirstOrDefault(c => c.Id == userId);
             if (user.PenaltyEndTime > DateTime.UtcNow)
@@ -81,7 +81,7 @@ namespace TagAPI.Controllers
             int count = _context.ChallengeCards.Count();
             if (count == 0)
             {
-                return NotFound("No challenges available.");
+                return NotFound(new { message = "No challenges available." });
             }
             List<int> everyUserChallengeId = _context.UserChallenges
                 .Where(c => c.UserID == userId)
@@ -90,11 +90,11 @@ namespace TagAPI.Controllers
             var startedChallenges = _context.UserChallenges.FirstOrDefault(c => c.UserID == userId && c.Status == "started");
             if (startedChallenges != null)
             {
-                return BadRequest("You have already started a challenge.");
+                return BadRequest(new { message = "You have already started a challenge." });
             }
             if (everyUserChallengeId.Count == count)
             {
-                return Ok("You already have done all available challenges");
+                return Ok(new { message = "You already have done all available challenges." });
             }
             bool isValid = true;
             int index;
@@ -110,7 +110,7 @@ namespace TagAPI.Controllers
             
             if (challenge == null)
             {
-                return NotFound("Challenge not found.");
+                return NotFound(new { message = "Challenge not found." });
             }
             var challengeDTO = new ChallengeCardDTO
             {
@@ -147,7 +147,7 @@ namespace TagAPI.Controllers
                 .FirstOrDefault(c => c.UserID == userId && c.Status == "started");
             if (userChallenge == null)
             {
-                return BadRequest("You haven't started a challenge... Yet");
+                return BadRequest(new { message = "You haven't started a challenge... Yet" });
             }
             var user = _context.Users
                 .FirstOrDefault(c => c.Id == userId);
@@ -165,7 +165,7 @@ namespace TagAPI.Controllers
             }
             
             _context.SaveChanges();
-            return Ok("Callenge Successfully");
+            return Ok(new { message = "Challenge Finished Successfully" });
         }
         [HttpGet("CurrentChallenge/")]
         public async Task<IActionResult> GetCurrentChallenge()
@@ -174,7 +174,7 @@ namespace TagAPI.Controllers
 
             if (string.IsNullOrEmpty(username))
             {
-                return Unauthorized("User is not authenticated.");
+                return Unauthorized(new { message = "User is not authenticated." });
             }
 
             // Use asynchronous database access
@@ -182,7 +182,7 @@ namespace TagAPI.Controllers
 
             if (user == null)
             {
-                return NotFound("User not found.");
+                return NotFound(new { message = "User not found." });
             }
 
             // Retrieve the current challenge for the user asynchronously and safely
@@ -197,7 +197,7 @@ namespace TagAPI.Controllers
 
             if (challengeCard == null)
             {
-                return NotFound("Challenge not found.");
+                return NotFound(new { message = "Challenge not found." });
             }
 
             return Ok(challengeCard);
@@ -209,7 +209,7 @@ namespace TagAPI.Controllers
 
             if (string.IsNullOrEmpty(username))
             {
-                return Unauthorized("User is not authenticated.");
+                return Unauthorized(new { message = "User is not authenticated." });
             }
 
             // Use asynchronous database access
@@ -217,7 +217,7 @@ namespace TagAPI.Controllers
 
             if (user == null)
             {
-                return NotFound("User not found.");
+                return NotFound(new { message = "User not found." });
             }
 
             // Retrieve the current challenge for the user asynchronously and safely
@@ -225,14 +225,14 @@ namespace TagAPI.Controllers
 
             if (userChallenge == null)
             {
-                return NotFound("No active challenge found for the user.");
+                return NotFound(new { message = "No active challenge found for the user." });
             }
             userChallenge.Status = "failed";
             userChallenge.EndTime = DateTime.UtcNow;
             user.PenaltyEndTime = DateTime.UtcNow.AddMinutes(30);
             user.HasMultiplier = false;
             _context.SaveChanges();
-            return Ok("Challenge failed successfully");
+            return Ok(new { message = "Challenge failed successfully" });
         }
     }
 }
