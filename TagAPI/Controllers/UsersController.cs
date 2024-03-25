@@ -37,7 +37,7 @@ namespace TagAPI.Controllers
                 Username = request.UserName,
                 PasswordHash = hashedPassword,
                 HasMultiplier = false,
-                GottstattCoins = 1000,
+                GottstattCoins = 2000,
             };
 
             _context.Users.Add(newUser);
@@ -85,7 +85,14 @@ namespace TagAPI.Controllers
             {
                 return BadRequest(new { message = "User not logged in." });
             }
-            return Ok(user);
+            UserInfoDTO userInfo = new UserInfoDTO
+            {
+                Username = user.Username,
+                HasMultiplier = user.HasMultiplier,
+                PenaltyEndTime = user.PenaltyEndTime.ToString("HH:mm"),
+                GottstattCoins = user.GottstattCoins
+            };
+            return Ok(userInfo);
         }
         private string CreateToken(User user)
         {

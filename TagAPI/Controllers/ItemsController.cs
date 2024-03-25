@@ -57,6 +57,10 @@ namespace TagAPI.Controllers
             {
                 return NotFound(new { message = "Item no existo." });
             }
+            if(user.GottstattCoins < item.ItemPrice)
+            {
+                return BadRequest(new { message = "Insufficient Funds" });
+            }
             if (item.ItemName == "Double")
             {
                 if (_context.UserChallenges.Where(c => c.UserID == user.Id && c.Status == "started").Any())
