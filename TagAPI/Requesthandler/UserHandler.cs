@@ -11,11 +11,5 @@ namespace TagAPI.Requesthandler
         {
             _context = context;
         }
-
-        public User GetUser(Claim claim)
-        {
-            var username = claim.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
-            return string.IsNullOrEmpty(username) ? null : _context.Users.FirstOrDefault(c => c.Username == username);
-        }
     }
 }
