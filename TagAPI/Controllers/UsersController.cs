@@ -89,7 +89,7 @@ namespace TagAPI.Controllers
             {
                 Username = user.Username,
                 HasMultiplier = user.HasMultiplier,
-                PenaltyEndTime = user.PenaltyEndTime.AddHours(1).ToString($"dd.MM | HH:mm"),
+                PenaltyEndTime = user.PenaltyEndTime.AddHours(2).ToString($"dd.MM | HH:mm"),
                 GottstattCoins = user.GottstattCoins
             };
             return Ok(userInfo);
@@ -107,7 +107,7 @@ namespace TagAPI.Controllers
 
             var token = new JwtSecurityToken(
                     claims: claims,
-                    expires: DateTime.Now.AddDays(30),
+                    expires: DateTime.Now.AddDays(365),
                     signingCredentials: credentials
                 );
             var jwt = new JwtSecurityTokenHandler().WriteToken(token);

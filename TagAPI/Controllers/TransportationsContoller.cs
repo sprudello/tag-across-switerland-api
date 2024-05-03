@@ -56,7 +56,7 @@ namespace TagAPI.Controllers
             var user = await _context.Users.FirstOrDefaultAsync(c => c.Username == username);
             if (user.PenaltyEndTime > DateTime.UtcNow)
             {
-                return BadRequest(new { message = $"You still have a penalty until {user.PenaltyEndTime.AddHours(1).TimeOfDay}" });
+                return BadRequest(new { message = $"You still have a penalty until {user.PenaltyEndTime.AddHours(2).TimeOfDay}" });
             }
             var transportation = _context.Transportations.FirstOrDefault(c => c.TypeName == request.TransportationTitle);
             if (transportation == null)
